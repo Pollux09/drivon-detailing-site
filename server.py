@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import ipaddress
 import json
 import os
 import re
@@ -107,6 +108,45 @@ def build_admin_message(data: dict[str, str], client_ip: str) -> str:
     f"IP: {client_ip}\n"
     f"Время: {ts}"
   )
+
+
+def parse_ip(value: str) -> str | None:
+  candidate = value.strip().strip('"').strip("'")
+  if not candidate:
+    return None
+
+  if candidate.startswith("[") and "]:" in candidate:
+    candidate = candidate[1 : candidate.index("]:")]
+  elif candidate.count(":") == 1 and "." in candidate:
+    host, port = candidate.rsplit(":", 1)
+    if port.isdigit():
+      candidate = host
+
+  try:
+    return str(ipaddress.ip_address(candidate))
+  except ValueError:
+    return None
+
+
+def resolve_client_ip(handler: SimpleHTTPRequestHandler) -> str:
+  forwarded = handler.headers.get("X-Forwarded-For", "")
+  if forwarded:
+    for part in forwarded.split(","):
+      resolved = parse_ip(part)
+      if resolved:
+        return resolved
+
+  real_ip = parse_ip(handler.headers.get("X-Real-IP", ""))
+  if real_ip:
+    return real_ip
+
+  cf_ip = parse_ip(handler.headers.get("CF-Connecting-IP", ""))
+  if cf_ip:
+    return cf_ip
+
+  raw_peer = handler.client_address[0] if handler.client_address else ""
+  peer_ip = parse_ip(raw_peer)
+  return peer_ip or "-"
 
 
 def send_telegram_message(
@@ -297,7 +337,7 @@ class AppHandler(SimpleHTTPRequestHandler):
       self.respond_json(HTTPStatus.BAD_REQUEST, {"ok": False, "error": error or "invalid_payload"})
       return
 
-    client_ip = self.client_address[0] if self.client_address else "-"
+    client_ip = resolve_client_ip(self)
     text = build_admin_message(valid, client_ip)
 
     delivered = 0
