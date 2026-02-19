@@ -1,4 +1,36 @@
 const compareBlock = document.querySelector('[data-compare]');
+const heroVideo = document.querySelector('.hero-bg-video');
+
+if (heroVideo instanceof HTMLVideoElement) {
+  heroVideo.autoplay = true;
+  heroVideo.loop = true;
+  heroVideo.muted = true;
+  heroVideo.defaultMuted = true;
+  heroVideo.playsInline = true;
+  heroVideo.setAttribute('muted', '');
+  heroVideo.setAttribute('playsinline', '');
+  heroVideo.setAttribute('webkit-playsinline', '');
+
+  const tryPlayHero = () => {
+    const playPromise = heroVideo.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(() => {});
+    }
+  };
+
+  if (heroVideo.readyState >= 2) {
+    tryPlayHero();
+  } else {
+    heroVideo.addEventListener('loadeddata', tryPlayHero, { once: true });
+  }
+
+  window.addEventListener('pointerdown', tryPlayHero, { once: true });
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      tryPlayHero();
+    }
+  });
+}
 
 if (compareBlock) {
   const input = compareBlock.querySelector('.compare-input');

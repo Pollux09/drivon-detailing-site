@@ -30,7 +30,18 @@
   </header>
 
   <section id="top" class="hero" aria-label="Главный экран">
-      <video class="hero-bg-video" src="hero/hero-bg.mp4" autoplay muted loop playsinline></video>
+      <video
+        class="hero-bg-video"
+        src="hero/hero-bg.mp4"
+        autoplay
+        muted
+        loop
+        playsinline
+        webkit-playsinline
+        preload="auto"
+        disablepictureinpicture
+        aria-hidden="true"
+      ></video>
       <div class="hero-layer" aria-hidden="true"></div>
 
       <div class="shell hero-inner">

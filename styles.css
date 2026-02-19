@@ -216,6 +216,11 @@ main {
   height: 100%;
   object-fit: cover;
   z-index: -3;
+  pointer-events: none;
+}
+
+.hero-bg-video::-webkit-media-controls {
+  display: none !important;
 }
 
 .hero-layer {
@@ -1197,6 +1202,7 @@ h1 {
 .checkbox input[type="checkbox"] {
   appearance: none;
   -webkit-appearance: none;
+  position: relative;
   width: 20px;
   height: 20px;
   flex: 0 0 20px;
@@ -1212,15 +1218,17 @@ h1 {
 
 .checkbox input[type="checkbox"]::after {
   content: "";
-  width: 10px;
-  height: 6px;
-  border-left: 2px solid #f5f9ff;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 10px;
+  border-right: 2px solid #f5f9ff;
   border-bottom: 2px solid #f5f9ff;
-  transform: rotate(-45deg) scale(0.35);
-  transform-origin: center;
+  transform: translate(-50%, -58%) rotate(45deg) scale(0.78);
+  transform-origin: center center;
   opacity: 0;
   transition: transform 0.14s ease, opacity 0.14s ease;
-  margin-top: -1px;
 }
 
 .checkbox input[type="checkbox"]:hover {
@@ -1241,7 +1249,7 @@ h1 {
 
 .checkbox input[type="checkbox"]:checked::after {
   opacity: 1;
-  transform: rotate(-45deg) scale(1);
+  transform: translate(-50%, -58%) rotate(45deg) scale(1);
 }
 
 .submit-btn {
