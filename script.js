@@ -20,6 +20,44 @@ if (compareBlock) {
   });
 }
 
+const routeCarousel = document.querySelector('[data-route-carousel]');
+
+if (routeCarousel) {
+  const track = routeCarousel.querySelector('[data-route-track]');
+  const prevButton = routeCarousel.querySelector('[data-route-prev]');
+  const nextButton = routeCarousel.querySelector('[data-route-next]');
+  const dotsContainer = routeCarousel.querySelector('[data-route-dots]');
+  const slides = Array.from(track?.querySelectorAll('.route-slide') || []);
+
+  if (track && prevButton && nextButton && dotsContainer && slides.length > 0) {
+    let activeIndex = 0;
+
+    const goTo = (index) => {
+      activeIndex = (index + slides.length) % slides.length;
+      track.style.transform = `translateX(-${activeIndex * 100}%)`;
+
+      const dots = dotsContainer.querySelectorAll('.route-dot');
+      dots.forEach((dot, dotIndex) => {
+        dot.classList.toggle('is-active', dotIndex === activeIndex);
+      });
+    };
+
+    slides.forEach((_, index) => {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'route-dot';
+      dot.setAttribute('aria-label', `Фото ${index + 1}`);
+      dot.addEventListener('click', () => goTo(index));
+      dotsContainer.appendChild(dot);
+    });
+
+    prevButton.addEventListener('click', () => goTo(activeIndex - 1));
+    nextButton.addEventListener('click', () => goTo(activeIndex + 1));
+
+    goTo(0);
+  }
+}
+
 const heroCopy = document.querySelector('.hero-copy');
 const heroMedia = document.querySelector('.hero-media');
 
@@ -46,6 +84,8 @@ const priceTable = document.querySelector('.price-table');
 const servicesTableBody = document.querySelector('[data-services-body]');
 const servicesSelect = document.querySelector('[data-service-select]');
 const servicesStatus = document.getElementById('services-status');
+const hasServicesTable = servicesTableBody instanceof HTMLElement;
+const hasServicesSelect = servicesSelect instanceof HTMLSelectElement;
 
 const applyPriceTableLabels = () => {
   if (!priceTable) {
@@ -94,42 +134,52 @@ const formatPrice = (basePrice) => {
 };
 
 const renderServices = (services) => {
-  if (!servicesTableBody || !servicesSelect) {
+  if (!hasServicesTable && !hasServicesSelect) {
     return;
   }
 
-  servicesTableBody.innerHTML = '';
-  servicesSelect.innerHTML = '<option value="" selected disabled>Выберите услугу</option>';
+  if (hasServicesTable) {
+    servicesTableBody.innerHTML = '';
+  }
+  if (hasServicesSelect) {
+    servicesSelect.innerHTML = '<option value="" selected disabled>Выберите услугу</option>';
+  }
 
   services.forEach((service) => {
-    const row = document.createElement('tr');
+    if (hasServicesTable) {
+      const row = document.createElement('tr');
 
-    const nameCell = document.createElement('td');
-    nameCell.textContent = service.name;
+      const nameCell = document.createElement('td');
+      nameCell.textContent = service.name;
 
-    const descriptionCell = document.createElement('td');
-    descriptionCell.textContent = service.description || '—';
+      const descriptionCell = document.createElement('td');
+      descriptionCell.textContent = service.description || '—';
 
-    const durationCell = document.createElement('td');
-    durationCell.textContent = formatDuration(service.durationMinutes);
+      const durationCell = document.createElement('td');
+      durationCell.textContent = formatDuration(service.durationMinutes);
 
-    const priceCell = document.createElement('td');
-    priceCell.textContent = formatPrice(service.basePrice);
+      const priceCell = document.createElement('td');
+      priceCell.textContent = formatPrice(service.basePrice);
 
-    row.append(nameCell, descriptionCell, durationCell, priceCell);
-    servicesTableBody.appendChild(row);
+      row.append(nameCell, descriptionCell, durationCell, priceCell);
+      servicesTableBody.appendChild(row);
+    }
 
-    const option = document.createElement('option');
-    option.value = service.name;
-    option.textContent = service.name;
-    servicesSelect.appendChild(option);
+    if (hasServicesSelect) {
+      const option = document.createElement('option');
+      option.value = service.name;
+      option.textContent = service.name;
+      servicesSelect.appendChild(option);
+    }
   });
 
-  applyPriceTableLabels();
+  if (hasServicesTable) {
+    applyPriceTableLabels();
+  }
 };
 
 const loadServicesFromDatabase = async () => {
-  if (!servicesTableBody || !servicesSelect) {
+  if (!hasServicesTable && !hasServicesSelect) {
     return;
   }
 
@@ -150,8 +200,12 @@ const loadServicesFromDatabase = async () => {
       .filter((service) => service.name.length > 0);
 
     if (services.length === 0) {
-      servicesTableBody.innerHTML = '<tr><td colspan="4">Активных услуг пока нет.</td></tr>';
-      servicesSelect.innerHTML = '<option value="" selected disabled>Активных услуг пока нет</option>';
+      if (hasServicesTable) {
+        servicesTableBody.innerHTML = '<tr><td colspan="4">Активных услуг пока нет.</td></tr>';
+      }
+      if (hasServicesSelect) {
+        servicesSelect.innerHTML = '<option value="" selected disabled>Активных услуг пока нет</option>';
+      }
     } else {
       renderServices(services);
     }
@@ -173,7 +227,9 @@ void loadServicesFromDatabase();
 
 const navLinks = document.querySelectorAll('.main-nav a');
 const sections = Array.from(navLinks)
-  .map((link) => document.querySelector(link.getAttribute('href')))
+  .map((link) => link.getAttribute('href') || '')
+  .filter((href) => href.startsWith('#'))
+  .map((href) => document.querySelector(href))
   .filter((section) => section instanceof HTMLElement);
 
 const setActiveLink = (id) => {
@@ -204,6 +260,20 @@ if (sections.length > 0) {
 
   sections.forEach((section) => observer.observe(section));
 }
+
+const currentPath = window.location.pathname.replace(/\/+$/, '');
+Array.from(navLinks).forEach((link) => {
+  const href = link.getAttribute('href') || '';
+  if (!href || href.startsWith('#')) {
+    return;
+  }
+
+  const linkPath = href.split('#')[0];
+  const normalizedLinkPath = linkPath.startsWith('/') ? linkPath : `/${linkPath}`;
+  if (currentPath.endsWith(normalizedLinkPath)) {
+    link.classList.add('is-active');
+  }
+});
 
 const requestForm = document.getElementById('request-form');
 const message = document.getElementById('form-message');
