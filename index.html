@@ -21,65 +21,56 @@
 
       <nav class="main-nav" aria-label="Навигация">
         <a href="#works">Примеры работ</a>
-        <a href="services.html">Услуги</a>
+        <a href="#services">Услуги</a>
         <a href="#reviews">Отзывы</a>
-        <a href="#request">Заявка</a>
       </nav>
 
       <a class="book-link" href="#request">Записаться</a>
     </div>
   </header>
 
-  <main class="shell" id="top">
-    <section class="hero" aria-label="Главный экран">
-      <article class="panel hero-copy">
-        <p class="kicker">DRIVON DETAILING</p>
-        <h1>1700 м² любви к деталям и сервис, которому доверяют тысячи клиентов</h1>
-        <p class="lead">DRIVON DETAILING — детейлинг-центр полного цикла: команда, которая горит своим делом и делает результат, который хочется показывать.</p>
+  <section id="top" class="hero" aria-label="Главный экран">
+      <video class="hero-bg-video" src="hero/hero-bg.mp4" autoplay muted loop playsinline></video>
+      <div class="hero-layer" aria-hidden="true"></div>
+
+      <div class="shell hero-inner">
+        <article class="hero-copy">
+          <p class="kicker">DRIVON DETAILING</p>
+          <h1>1700 м² любви к деталям и сервис, которому доверяют тысячи клиентов</h1>
+          <p class="lead">DRIVON DETAILING — детейлинг-центр полного цикла: команда, которая горит своим делом и делает результат, который хочется показывать.</p>
 
         <div class="hero-actions">
-          <a class="btn btn-primary" href="#works">Смотреть кейсы</a>
-          <a class="btn btn-ghost" href="services.html">Прайс и услуги</a>
+            <a class="btn btn-primary" href="#request">Записаться</a>
         </div>
 
-        <ul class="stats-grid" aria-label="Показатели">
-          <li>
-            <strong>5 лет</strong>
-            <span>на рынке</span>
-          </li>
-          <li>
-            <strong>3000+</strong>
-            <span>довольных клиентов</span>
-          </li>
-          <li>
-            <strong>50+</strong>
-            <span>специалистов</span>
-          </li>
-        </ul>
-      </article>
+          <ul class="stats-grid" aria-label="Показатели">
+            <li>
+              <strong>5 лет</strong>
+              <span>на рынке</span>
+            </li>
+            <li>
+              <strong>3000+</strong>
+              <span>довольных клиентов</span>
+            </li>
+            <li>
+              <strong>50+</strong>
+              <span>специалистов</span>
+            </li>
+          </ul>
+        </article>
+      </div>
+  </section>
 
-      <article class="panel hero-media">
-        <figure class="media-card">
-          <img src="images/2026-02-06 17.43.52.jpg" alt="Финиш после многоэтапной полировки">
-          <figcaption>Финиш после многоэтапной полировки и защитного состава</figcaption>
-        </figure>
-
-        <figure class="media-card">
-          <video src="images/2026-02-06 17.42.35.mp4" autoplay muted loop playsinline></video>
-          <figcaption>Процесс и контроль бликов под направленным светом</figcaption>
-        </figure>
-      </article>
-    </section>
-
+  <main class="shell">
     <section id="works" class="section">
       <p class="kicker">ПРИМЕРЫ РАБОТ</p>
       <h2>Результат видно на первом взгляде</h2>
 
       <article class="panel compare-panel" data-compare>
         <div class="compare-media">
-          <img src="images/после.jpg" alt="До" class="compare-image compare-before">
+          <img src="before-after/after.jpg" alt="После" class="compare-image compare-before">
           <div class="compare-after-wrap">
-            <img src="images/до.jpg" alt="После" class="compare-image compare-after">
+            <img src="before-after/before.jpg" alt="До" class="compare-image compare-after">
           </div>
           <span class="compare-tag compare-tag-left">До</span>
           <span class="compare-tag compare-tag-right">После</span>
@@ -94,75 +85,49 @@
         </div>
       </article>
 
-      <p class="works-lead">Основные направления DRIVON: наведи на карточку и посмотри описание услуги.</p>
-
-      <div class="services-showcase-grid" aria-label="Услуги DRIVON">
-        <a class="service-showcase-card service-showcase-card-wide" href="services.html#svc-detail-moika">
-          <img src="images/2026-02-06 17.43.47.jpg" alt="Детейлинг-мойка">
+      <div id="services" class="services-showcase-grid" aria-label="Услуги DRIVON">
+        <a class="service-showcase-card service-showcase-card-wide" href="#request">
+          <img src="services/detailing-wash.jpg" alt="Детейлинг-мойка">
           <div class="service-showcase-overlay">
             <h3>Детейлинг-мойка</h3>
             <p>Бережная двухфазная мойка, чистка сложных зон и финишные составы для глубины блеска.</p>
           </div>
         </a>
 
-        <a class="service-showcase-card" href="services.html#svc-okleyka">
-          <img src="images/XXXL (2).webp" alt="Оклейка кузова и стёкол">
+        <a class="service-showcase-card" href="#request">
+          <img src="services/ppf-wrap.webp" alt="Оклейка кузова и стёкол">
           <div class="service-showcase-overlay">
             <h3>Оклейка кузова и стёкол</h3>
             <p>Защитные пленки для кузова и стекол: сохранение ЛКП и уверенный внешний вид каждый день.</p>
           </div>
         </a>
 
-        <a class="service-showcase-card" href="services.html#svc-himchistka-polirovka">
-          <img src="images/2026-02-06 17.41.43.jpg" alt="Химчистка и полировка">
+        <a class="service-showcase-card" href="#request">
+          <img src="services/interior-clean-polish.jpg" alt="Химчистка и полировка">
           <div class="service-showcase-overlay">
             <h3>Химчистка и полировка</h3>
             <p>Глубокая очистка салона и полировка кузова с устранением мелких дефектов и паутинки.</p>
           </div>
         </a>
 
-        <a class="service-showcase-card service-showcase-card-tall" href="services.html#svc-remont-pokraska">
-          <img src="images/2026-02-06 17.43.37.jpg" alt="Локальный ремонт и покраска">
+        <a class="service-showcase-card" href="#request">
+          <img src="services/local-repair-paint.jpg" alt="Локальный ремонт и покраска">
           <div class="service-showcase-overlay">
             <h3>Локальный ремонт и покраска</h3>
             <p>Точечное восстановление элементов без лишнего вмешательства, с аккуратным подбором оттенка.</p>
           </div>
         </a>
 
-        <a class="service-showcase-card" href="services.html#svc-pdr">
-          <img src="images/2026-02-06 17.41.48.jpg" alt="Вмятины без покраски">
-          <div class="service-showcase-overlay">
-            <h3>Вмятины без покраски</h3>
-            <p>Технологии PDR для возвращения геометрии кузова без перекраса деталей.</p>
-          </div>
-        </a>
-
-        <a class="service-showcase-card" href="services.html#svc-diski">
-          <img src="images/XXXL (6).webp" alt="Порошковая покраска дисков">
-          <div class="service-showcase-overlay">
-            <h3>Порошковая покраска дисков</h3>
-            <p>Полный цикл подготовки и окраса дисков с прочным покрытием и чистой фактурой.</p>
-          </div>
-        </a>
-
-        <a class="service-showcase-card" href="services.html#svc-tonirovka">
-          <img src="images/XXXL (1).webp" alt="Тонировка">
-          <div class="service-showcase-overlay">
-            <h3>Тонировка</h3>
-            <p>Подбор пленок под задачу: комфорт, приватность и визуальный стиль автомобиля.</p>
-          </div>
-        </a>
-
-        <a class="service-showcase-card" href="services.html#svc-optika">
-          <img src="images/2026-02-06 17.41.33.jpg" alt="Ремонт оптики">
+        <a class="service-showcase-card" href="#request">
+          <img src="services/headlight-repair.jpg" alt="Ремонт оптики">
           <div class="service-showcase-overlay">
             <h3>Ремонт оптики</h3>
             <p>Восстановление прозрачности и светораспределения фар для безопасности и эстетики.</p>
           </div>
         </a>
 
-        <a class="service-showcase-card service-showcase-card-wide" href="services.html#svc-complex">
-          <img src="images/XXXL.webp" alt="Комплексные решения DRIVON">
+        <a class="service-showcase-card service-showcase-card-full" href="#request">
+          <img src="services/complex-solutions.webp" alt="Комплексные решения DRIVON">
           <div class="service-showcase-overlay">
             <h3>Комплексные решения</h3>
             <p>Собираем индивидуальный пакет работ под автомобиль: от базового ухода до полного цикла.</p>
@@ -180,22 +145,22 @@
           <div class="route-viewport">
             <div class="route-track" data-route-track>
               <figure class="route-slide">
-                <img src="new_images/1.JPG" alt="Путь к студии DRIVON, фото 1" loading="lazy">
+                <img src="location/1.JPG" alt="Путь к студии DRIVON, фото 1" loading="lazy">
               </figure>
               <figure class="route-slide">
-                <img src="new_images/2.JPG" alt="Путь к студии DRIVON, фото 2" loading="lazy">
+                <img src="location/2.JPG" alt="Путь к студии DRIVON, фото 2" loading="lazy">
               </figure>
               <figure class="route-slide">
-                <img src="new_images/3.JPG" alt="Путь к студии DRIVON, фото 3" loading="lazy">
+                <img src="location/3.JPG" alt="Путь к студии DRIVON, фото 3" loading="lazy">
               </figure>
               <figure class="route-slide">
-                <img src="new_images/4.JPG" alt="Путь к студии DRIVON, фото 4" loading="lazy">
+                <img src="location/4.JPG" alt="Путь к студии DRIVON, фото 4" loading="lazy">
               </figure>
               <figure class="route-slide">
-                <img src="new_images/5.JPG" alt="Путь к студии DRIVON, фото 5" loading="lazy">
+                <img src="location/5.JPG" alt="Путь к студии DRIVON, фото 5" loading="lazy">
               </figure>
               <figure class="route-slide">
-                <img src="new_images/6.JPG" alt="Путь к студии DRIVON, фото 6" loading="lazy">
+                <img src="location/6.JPG" alt="Путь к студии DRIVON, фото 6" loading="lazy">
               </figure>
             </div>
 
@@ -217,12 +182,15 @@
       <div class="reviews-grid">
         <article class="panel review-card review-card-featured">
           <div class="review-head">
-            <span class="review-avatar">АК</span>
+            <span class="review-avatar">МЧ</span>
             <div class="review-meta">
-              <h3>Отзыв от друга студии</h3>
+              <h3>Отзыв от Михаила Честного</h3>
               <p>Личный опыт и рекомендация</p>
             </div>
           </div>
+          <figure class="review-feature-media">
+            <img src="reviews/review-mikhail.jpg" alt="Отзыв от Михаила Честного">
+          </figure>
           <p class="review-stars">★★★★★</p>
           <p class="review-text">Я не так часто здесь оставляю ссылки на каналы других ребят, но это тот самый случай. Волею судеб, мы познакомились с Серегой, владельцем детейлинг-студии Drivon.</p>
           <p class="review-text">Вне контента я привез ему автомобиль жены на процедуры по полировке, химчистке и разным мелочам. Результат приятно удивил, но больше всего понравился подход и взгляд на бизнес. Я буквально вспомнил себя лет 10-15 назад.</p>
@@ -230,84 +198,25 @@
           <p class="review-text">У меня к вам простая просьба: перейти по ссылке и поддержать канал Сереги, это его первое видео. Мне будет очень приятно, если мы все сможем помочь на старте хорошему парню. Ведь все когда-то находятся в начале своего большого пути.</p>
           <p class="review-foot">Публикация из канала</p>
         </article>
+      </div>
 
-        <article class="panel review-card">
-          <div class="review-head">
-            <span class="review-avatar">АМ</span>
-            <div class="review-meta">
-              <h3>Андрей М.</h3>
-              <p>BMW X5 • Полировка + керамика</p>
+      <div class="reviews-yandex">
+        <div class="reviews-yandex-head">
+          <h3>Отзывы с Яндекс Карт</h3>
+          <a class="reviews-yandex-link" href="https://yandex.com/maps/org/drivon/242346502549/" target="_blank" rel="noopener noreferrer">Смотреть все</a>
+        </div>
+        <div class="reviews-grid reviews-grid-yandex" data-yandex-reviews>
+          <article class="panel review-card review-card-placeholder">
+            <div class="review-head">
+              <span class="review-avatar">YA</span>
+              <div class="review-meta">
+                <h3>Загрузка отзывов...</h3>
+                <p>Яндекс Карты</p>
+              </div>
             </div>
-          </div>
-          <p class="review-stars">★★★★★</p>
-          <p class="review-text">Сделали кузов в идеал, цвет стал заметно глубже. Отдельно понравилось, что присылали фото по этапам и точно уложились в срок.</p>
-          <p class="review-foot">Яндекс Карты</p>
-        </article>
-
-        <article class="panel review-card">
-          <div class="review-head">
-            <span class="review-avatar">ЕК</span>
-            <div class="review-meta">
-              <h3>Екатерина К.</h3>
-              <p>Mercedes GLC • Химчистка салона</p>
-            </div>
-          </div>
-          <p class="review-stars">★★★★★</p>
-          <p class="review-text">Салон вернули как новый, убрали сложные пятна и запах. Всё аккуратно, без спешки, объяснили что делали и чем защищали материалы.</p>
-          <p class="review-foot">2GIS</p>
-        </article>
-
-        <article class="panel review-card">
-          <div class="review-head">
-            <span class="review-avatar">ДР</span>
-            <div class="review-meta">
-              <h3>Денис Р.</h3>
-              <p>Porsche Panamera • Комплекс Full Care</p>
-            </div>
-          </div>
-          <p class="review-stars">★★★★★</p>
-          <p class="review-text">Работают как в премиум-сервисе: чёткий прием, сроки, фотоотчет. Машину забрал с идеальным блеском и чистым салоном.</p>
-          <p class="review-foot">Google Maps</p>
-        </article>
-
-        <article class="panel review-card">
-          <div class="review-head">
-            <span class="review-avatar">ИП</span>
-            <div class="review-meta">
-              <h3>Игорь П.</h3>
-              <p>Genesis GV80 • Stage 1</p>
-            </div>
-          </div>
-          <p class="review-stars">★★★★★</p>
-          <p class="review-text">Убрали паутинку и мелкие риски, лак стал зеркальный. Видно, что ребята заморачиваются на деталях и контроле света.</p>
-          <p class="review-foot">Яндекс Карты</p>
-        </article>
-
-        <article class="panel review-card">
-          <div class="review-head">
-            <span class="review-avatar">МС</span>
-            <div class="review-meta">
-              <h3>Мария С.</h3>
-              <p>Audi Q7 • Защитное покрытие</p>
-            </div>
-          </div>
-          <p class="review-stars">★★★★★</p>
-          <p class="review-text">После мойки вода реально скатывается, кузов дольше остается чистым. Удобная коммуникация и понятные рекомендации по уходу.</p>
-          <p class="review-foot">2GIS</p>
-        </article>
-
-        <article class="panel review-card">
-          <div class="review-head">
-            <span class="review-avatar">НВ</span>
-            <div class="review-meta">
-              <h3>Никита В.</h3>
-              <p>AMG GT • Подготовка к сезону</p>
-            </div>
-          </div>
-          <p class="review-stars">★★★★★</p>
-          <p class="review-text">Отличный сервис: заранее согласовали работы, всё прозрачно по стоимости, результатом доволен на 100%.</p>
-          <p class="review-foot">Google Maps</p>
-        </article>
+          </article>
+        </div>
+        <p id="reviews-status" class="form-message" aria-live="polite"></p>
       </div>
     </section>
 
@@ -316,7 +225,7 @@
         <div class="request-copy">
           <p class="kicker">ФОРМА ЗАЯВКИ</p>
           <h2>Оставьте заявку на расчет и удобное окно записи</h2>
-          <p>Заполните форму, и администратор получит заявку в Telegram: имя, телефон, автомобиль, услуга и комментарий.</p>
+          <p>Заполните форму, и администратор получит заявку в Telegram: имя, телефон и комментарий.</p>
           <p class="tg-note">Можно записаться напрямую через бота:
             <a class="tg-link" href="https://t.me/drivon_detailing_bot" target="_blank" rel="noopener noreferrer">@drivon_detailing_bot</a>
           </p>
@@ -332,25 +241,6 @@
             Телефон
             <input type="tel" name="phone" placeholder="+7 (___) ___-__-__" autocomplete="tel" inputmode="tel" required>
           </label>
-
-          <label>
-            Автомобиль
-            <input type="text" name="car" placeholder="Марка и модель" required>
-          </label>
-
-          <label>
-            Интересующая услуга
-            <select name="service" required data-service-select>
-              <option value="" selected disabled>Выберите услугу</option>
-              <option>Detail мойка + консервация</option>
-              <option>Химчистка салона Premium</option>
-              <option>Полировка кузова Stage 1</option>
-              <option>Керамическое покрытие</option>
-              <option>Комплекс Premium Full Care</option>
-            </select>
-          </label>
-
-          <p id="services-status" class="form-message full" aria-live="polite"></p>
 
           <label class="full">
             Комментарий
@@ -368,6 +258,27 @@
       </article>
     </section>
   </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-inner">
+      <article class="panel founder-panel">
+        <div class="founder-copy">
+          <h3>Контакты</h3>
+        </div>
+        <div class="founder-actions">
+          <a class="tg-contact-link" href="https://t.me/drivonauto" target="_blank" rel="noopener noreferrer" aria-label="Telegram основателя DRIVON">
+            <span class="tg-contact-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="img">
+                <path d="M21.2 4.8C21.48 3.63 20.7 2.93 19.6 3.34L3.8 9.38C2.72 9.8 2.74 10.4 3.61 10.67L7.68 11.94L17.1 6C17.54 5.72 17.95 5.87 17.62 6.17L9.99 13.09H9.98L9.99 13.1L9.71 17.26C10.12 17.26 10.3 17.07 10.53 16.84L12.5 14.93L16.58 17.94C17.33 18.35 17.86 18.14 18.05 17.27L21.2 4.8Z"/>
+              </svg>
+            </span>
+            <span class="tg-contact-label">@drivonauto</span>
+          </a>
+          <a class="founder-phone" href="tel:+79775153344">+7 977 515-33-44</a>
+        </div>
+      </article>
+    </div>
+  </footer>
 
   <script src="script.js"></script>
 </body>

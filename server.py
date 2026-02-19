@@ -23,10 +23,15 @@ ENV_PATH = ROOT_DIR / ".env"
 PHONE_RE = re.compile(r"^[0-9+()\-\s]{6,25}$")
 MAX_BODY_BYTES = 20_000
 SERVICES_CACHE_TTL_SECONDS = 60
+REVIEWS_CACHE_TTL_SECONDS = 300
+DEFAULT_YANDEX_REVIEWS_URL = "https://yandex.com/maps/org/drivon/242346502549/"
 
 _services_cache_lock = Lock()
 _services_cache_until = 0.0
 _services_cache_data: list[dict[str, Any]] | None = None
+_reviews_cache_lock = Lock()
+_reviews_cache_until = 0.0
+_reviews_cache_data: list[dict[str, Any]] | None = None
 
 
 def load_dotenv(path: Path) -> None:
@@ -71,8 +76,6 @@ def clean_comment(value: Any, max_len: int) -> str:
 def validate_payload(payload: dict[str, Any]) -> tuple[dict[str, str] | None, str | None]:
   name = clean_text(payload.get("name"), 80)
   phone = clean_text(payload.get("phone"), 40)
-  car = clean_text(payload.get("car"), 120)
-  service = clean_text(payload.get("service"), 120)
   comment = clean_comment(payload.get("comment"), 600)
 
   if not name:
@@ -81,16 +84,10 @@ def validate_payload(payload: dict[str, Any]) -> tuple[dict[str, str] | None, st
     return None, "phone_required"
   if not PHONE_RE.fullmatch(phone):
     return None, "phone_invalid"
-  if not car:
-    return None, "car_required"
-  if not service:
-    return None, "service_required"
 
   return {
     "name": name,
     "phone": phone,
-    "car": car,
-    "service": service,
     "comment": comment,
   }, None
 
@@ -102,8 +99,6 @@ def build_admin_message(data: dict[str, str], client_ip: str) -> str:
     "🆕 Новая заявка с сайта DRIVON\n"
     f"Имя: {data['name']}\n"
     f"Телефон: {data['phone']}\n"
-    f"Автомобиль: {data['car']}\n"
-    f"Услуга: {data['service']}\n"
     f"Комментарий: {comment}\n"
     f"IP: {client_ip}\n"
     f"Время: {ts}"
@@ -248,6 +243,148 @@ def load_active_services() -> tuple[list[dict[str, Any]] | None, str | None]:
   return list(services), None
 
 
+def extract_json_value(source: str, start_index: int) -> tuple[str | None, int]:
+  idx = start_index
+  length = len(source)
+  while idx < length and source[idx].isspace():
+    idx += 1
+
+  if idx >= length:
+    return None, idx
+
+  opening = source[idx]
+  if opening not in "[{":
+    return None, idx
+  closing = "]" if opening == "[" else "}"
+
+  depth = 0
+  in_string = False
+  escaped = False
+
+  for pos in range(idx, length):
+    ch = source[pos]
+
+    if in_string:
+      if escaped:
+        escaped = False
+      elif ch == "\\":
+        escaped = True
+      elif ch == '"':
+        in_string = False
+      continue
+
+    if ch == '"':
+      in_string = True
+      continue
+    if ch == opening:
+      depth += 1
+      continue
+    if ch == closing:
+      depth -= 1
+      if depth == 0:
+        return source[idx : pos + 1], pos + 1
+
+  return None, idx
+
+
+def parse_yandex_reviews(html: str, limit: int = 8) -> list[dict[str, Any]]:
+  marker = re.search(r'"reviewResults"\s*:\s*\{\s*"reviews"\s*:\s*', html)
+  if marker is None:
+    return []
+
+  raw_array, _ = extract_json_value(html, marker.end())
+  if raw_array is None:
+    return []
+
+  try:
+    reviews_data = json.loads(raw_array)
+  except json.JSONDecodeError:
+    return []
+
+  if not isinstance(reviews_data, list):
+    return []
+
+  parsed: list[dict[str, Any]] = []
+  for item in reviews_data:
+    if not isinstance(item, dict):
+      continue
+
+    author_data = item.get("author")
+    author_name = clean_text(author_data.get("name"), 80) if isinstance(author_data, dict) else ""
+    text = clean_comment(item.get("text"), 700)
+    if not author_name or not text:
+      continue
+
+    rating_value = item.get("rating", 0)
+    try:
+      rating = float(rating_value)
+    except (TypeError, ValueError):
+      rating = 0.0
+    rating = max(0.0, min(5.0, rating))
+
+    updated_at = clean_text(item.get("updatedTime"), 48)
+    parsed.append(
+      {
+        "author_name": author_name,
+        "text": text,
+        "rating": rating,
+        "updated_at": updated_at,
+      }
+    )
+    if len(parsed) >= limit:
+      break
+
+  return parsed
+
+
+def fetch_yandex_reviews_page(url: str) -> tuple[str | None, str | None]:
+  req = Request(
+    url,
+    headers={
+      "User-Agent": "Mozilla/5.0",
+      "Accept-Language": "ru,en;q=0.9",
+    },
+    method="GET",
+  )
+  try:
+    with urlopen(req, timeout=15) as resp:
+      raw = resp.read()
+      charset = resp.headers.get_content_charset() or "utf-8"
+    return raw.decode(charset, errors="ignore"), None
+  except HTTPError as err:
+    return None, f"reviews_http_{err.code}"
+  except URLError:
+    return None, "reviews_unreachable"
+  except Exception:
+    return None, "reviews_request_failed"
+
+
+def load_yandex_reviews() -> tuple[list[dict[str, Any]] | None, str | None]:
+  global _reviews_cache_until, _reviews_cache_data
+
+  source_url = clean_text(os.getenv("YANDEX_REVIEWS_URL", DEFAULT_YANDEX_REVIEWS_URL), 500)
+  if not source_url.startswith("http://") and not source_url.startswith("https://"):
+    return None, "reviews_url_invalid"
+
+  now = time.monotonic()
+  with _reviews_cache_lock:
+    if _reviews_cache_data is not None and now < _reviews_cache_until:
+      return list(_reviews_cache_data), None
+
+  html, error = fetch_yandex_reviews_page(source_url)
+  if error or html is None:
+    return None, error or "reviews_unavailable"
+
+  reviews = parse_yandex_reviews(html)
+  if not reviews:
+    return None, "reviews_not_found"
+
+  with _reviews_cache_lock:
+    _reviews_cache_data = reviews
+    _reviews_cache_until = now + REVIEWS_CACHE_TTL_SECONDS
+  return list(reviews), None
+
+
 class AppHandler(SimpleHTTPRequestHandler):
   def __init__(self, *args: Any, **kwargs: Any) -> None:
     super().__init__(*args, directory=str(ROOT_DIR), **kwargs)
@@ -276,25 +413,40 @@ class AppHandler(SimpleHTTPRequestHandler):
       self.send_header("Allow", "GET, OPTIONS")
       self.end_headers()
       return
+    if path == "/api/reviews":
+      self.send_response(HTTPStatus.NO_CONTENT)
+      self.send_header("Allow", "GET, OPTIONS")
+      self.end_headers()
+      return
     self.send_error(HTTPStatus.NOT_FOUND)
     return
 
   def do_GET(self) -> None:
     path = urlparse(self.path).path
-    if path != "/api/services":
+    if path not in {"/api/services", "/api/reviews"}:
       super().do_GET()
       return
 
-    services, error = load_active_services()
-    if error or services is None:
-      if error in {"database_not_configured", "asyncpg_not_installed"}:
-        status = HTTPStatus.INTERNAL_SERVER_ERROR
-      else:
-        status = HTTPStatus.BAD_GATEWAY
-      self.respond_json(status, {"ok": False, "error": error or "services_unavailable"})
+    if path == "/api/services":
+      services, error = load_active_services()
+      if error or services is None:
+        if error in {"database_not_configured", "asyncpg_not_installed"}:
+          status = HTTPStatus.INTERNAL_SERVER_ERROR
+        else:
+          status = HTTPStatus.BAD_GATEWAY
+        self.respond_json(status, {"ok": False, "error": error or "services_unavailable"})
+        return
+
+      self.respond_json(HTTPStatus.OK, {"ok": True, "services": services, "count": len(services)})
       return
 
-    self.respond_json(HTTPStatus.OK, {"ok": True, "services": services, "count": len(services)})
+    reviews, error = load_yandex_reviews()
+    if error or reviews is None:
+      status = HTTPStatus.INTERNAL_SERVER_ERROR if error == "reviews_url_invalid" else HTTPStatus.BAD_GATEWAY
+      self.respond_json(status, {"ok": False, "error": error or "reviews_unavailable"})
+      return
+
+    self.respond_json(HTTPStatus.OK, {"ok": True, "reviews": reviews, "count": len(reviews)})
 
   def do_POST(self) -> None:
     path = urlparse(self.path).path
@@ -367,9 +519,10 @@ def main() -> None:
 
   server = ThreadingHTTPServer((host, port), AppHandler)
   print(f"DRIVON server started: http://{host}:{port}")
-  print("Endpoints: POST /api/request, GET /api/services")
+  print("Endpoints: POST /api/request, GET /api/services, GET /api/reviews")
   print("Required env for /api/request: BOT_TOKEN, ADMIN_IDS")
   print("Required env for /api/services: DATABASE_URL")
+  print("Optional env for /api/reviews: YANDEX_REVIEWS_URL")
   server.serve_forever()
 
 

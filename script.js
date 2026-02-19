@@ -7,8 +7,9 @@ if (compareBlock) {
   const knob = compareBlock.querySelector('.compare-knob');
 
   const updateCompare = (value) => {
-    const ratio = `${value}%`;
-    afterWrap.style.width = ratio;
+    const numericValue = Math.max(0, Math.min(100, Number(value)));
+    const ratio = `${numericValue}%`;
+    afterWrap.style.clipPath = `inset(0 ${100 - numericValue}% 0 0)`;
     line.style.left = ratio;
     knob.style.left = ratio;
   };
@@ -55,28 +56,6 @@ if (routeCarousel) {
     nextButton.addEventListener('click', () => goTo(activeIndex + 1));
 
     goTo(0);
-  }
-}
-
-const heroCopy = document.querySelector('.hero-copy');
-const heroMedia = document.querySelector('.hero-media');
-
-if (heroCopy && heroMedia) {
-  const syncHeroColumns = () => {
-    if (window.innerWidth <= 1180) {
-      heroMedia.style.height = '';
-      return;
-    }
-
-    heroMedia.style.height = `${heroCopy.offsetHeight}px`;
-  };
-
-  syncHeroColumns();
-  window.addEventListener('resize', syncHeroColumns);
-
-  if ('ResizeObserver' in window) {
-    const heroObserver = new ResizeObserver(syncHeroColumns);
-    heroObserver.observe(heroCopy);
   }
 }
 
@@ -225,6 +204,128 @@ const loadServicesFromDatabase = async () => {
 applyPriceTableLabels();
 void loadServicesFromDatabase();
 
+const yandexReviewsContainer = document.querySelector('[data-yandex-reviews]');
+const yandexReviewsStatus = document.getElementById('reviews-status');
+
+const formatReviewDate = (isoValue) => {
+  if (!isoValue) {
+    return '';
+  }
+  const date = new Date(isoValue);
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+  return new Intl.DateTimeFormat('ru-RU').format(date);
+};
+
+const getReviewInitials = (fullName) => {
+  const words = String(fullName || '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (words.length === 0) {
+    return 'YA';
+  }
+  const first = words[0]?.[0] || '';
+  const second = words[1]?.[0] || '';
+  return `${first}${second || ''}`.toUpperCase();
+};
+
+const buildStars = (rating) => {
+  const normalized = Number.isFinite(Number(rating)) ? Number(rating) : 0;
+  const rounded = Math.max(0, Math.min(5, Math.round(normalized)));
+  return `${'★'.repeat(rounded)}${'☆'.repeat(5 - rounded)}`;
+};
+
+const renderYandexReviews = (reviews) => {
+  if (!(yandexReviewsContainer instanceof HTMLElement)) {
+    return;
+  }
+
+  yandexReviewsContainer.innerHTML = '';
+
+  reviews.forEach((review) => {
+    const card = document.createElement('article');
+    card.className = 'panel review-card review-card-yandex';
+
+    const head = document.createElement('div');
+    head.className = 'review-head';
+
+    const avatar = document.createElement('span');
+    avatar.className = 'review-avatar';
+    avatar.textContent = getReviewInitials(review.author_name);
+
+    const meta = document.createElement('div');
+    meta.className = 'review-meta';
+
+    const title = document.createElement('h3');
+    title.textContent = String(review.author_name || 'Клиент');
+
+    const subtitle = document.createElement('p');
+    const dateLabel = formatReviewDate(String(review.updated_at || ''));
+    subtitle.textContent = dateLabel ? `${dateLabel} • Яндекс Карты` : 'Яндекс Карты';
+
+    meta.append(title, subtitle);
+    head.append(avatar, meta);
+
+    const stars = document.createElement('p');
+    stars.className = 'review-stars';
+    stars.textContent = buildStars(review.rating);
+
+    const text = document.createElement('p');
+    text.className = 'review-text';
+    text.textContent = String(review.text || '');
+
+    const foot = document.createElement('p');
+    foot.className = 'review-foot';
+    foot.textContent = 'Яндекс Карты';
+
+    card.append(head, stars, text, foot);
+    yandexReviewsContainer.appendChild(card);
+  });
+};
+
+const loadYandexReviews = async () => {
+  if (!(yandexReviewsContainer instanceof HTMLElement)) {
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/reviews');
+    const body = await response.json();
+    if (!response.ok || !body?.ok || !Array.isArray(body.reviews)) {
+      throw new Error(body?.error || 'reviews_load_failed');
+    }
+
+    const reviews = body.reviews
+      .filter((review) => typeof review?.text === 'string' && String(review.text).trim().length > 0)
+      .slice(0, 6);
+
+    if (reviews.length === 0) {
+      yandexReviewsContainer.innerHTML = '';
+      if (yandexReviewsStatus) {
+        yandexReviewsStatus.textContent = 'На Яндекс Картах пока нет опубликованных отзывов.';
+        yandexReviewsStatus.style.color = '#afbdd5';
+      }
+      return;
+    }
+
+    renderYandexReviews(reviews);
+    if (yandexReviewsStatus) {
+      yandexReviewsStatus.textContent = '';
+      yandexReviewsStatus.style.color = '';
+    }
+  } catch (error) {
+    yandexReviewsContainer.innerHTML = '';
+    if (yandexReviewsStatus) {
+      yandexReviewsStatus.textContent = 'Не удалось загрузить отзывы с Яндекс Карт. Откройте ссылку «Смотреть все».';
+      yandexReviewsStatus.style.color = '#ef8f8f';
+    }
+  }
+};
+
+void loadYandexReviews();
+
 const navLinks = document.querySelectorAll('.main-nav a');
 const sections = Array.from(navLinks)
   .map((link) => link.getAttribute('href') || '')
@@ -322,8 +423,6 @@ if (requestForm && message) {
     const payload = {
       name: String(formData.get('name') || '').trim(),
       phone: String(formData.get('phone') || '').trim(),
-      car: String(formData.get('car') || '').trim(),
-      service: String(formData.get('service') || '').trim(),
       comment: String(formData.get('comment') || '').trim(),
     };
 
